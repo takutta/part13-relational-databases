@@ -25,6 +25,11 @@ const User = sequelize.define('user', {
   passwordHash: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  enabled: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   }
 }, {
   underscored: true,

@@ -1,6 +1,8 @@
 const Blog = require('./blog')
 const User = require('./user')
 const ReadingList = require('./readingList')
+const Session = require('./session')
+
 
 User.hasMany(Blog)
 Blog.belongsTo(User)
@@ -8,13 +10,15 @@ Blog.belongsTo(User)
 User.hasMany(ReadingList)
 ReadingList.belongsTo(User)
 
-Blog.hasMany(ReadingList)
-ReadingList.belongsTo(Blog)
+Blog.hasMany(ReadingList, { onDelete: 'CASCADE' });
+ReadingList.belongsTo(Blog, { onDelete: 'CASCADE' });
 
 User.belongsToMany(Blog, { through: ReadingList });
 Blog.belongsToMany(User, { through: ReadingList });
 
+User.hasOne(Session);
+Session.belongsTo(User);
 
 module.exports = {
-  Blog, User, ReadingList
+  Blog, User, ReadingList, Session
 }

@@ -13,6 +13,7 @@
   },
   "scripts": {
     "dev": "nodemon index.js",
+    "proxy": "flyctl proxy 5432 -a fso-blog",
     "migration:down": "node util/rollback.js"
   },
   "devDependencies": {

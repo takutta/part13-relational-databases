@@ -2,6 +2,7 @@ const router = require('express').Router()
 const findReadingList = require('../util/entityFinder')
 const { ReadingList, Blog, User } = require('../models')
 const tokenExtractor = require('../util/tokenExtractor')
+const sessionExtractor = require('../util/sessionExtractor')
 
 router.get('/', async (req, res) => {
   const readingLists = await ReadingList.findAll();
@@ -25,8 +26,8 @@ router.post('/', async (req, res) => {
   return res.json(readingList);
 })
 
-router.put('/:id', findReadingList(ReadingList), tokenExtractor, async (req, res) => {
-  const user = await User.findByPk(req.decodedToken.id, {
+router.put('/:id', findReadingList(ReadingList), tokenExtractor, sessionExtractor, async (req, res) => {
+  const user = await User.findByPk(req.session.userId, {
     include: [{
       model: ReadingList,
     }]

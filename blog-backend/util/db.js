@@ -6,6 +6,7 @@ const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres'
 })
 
+
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()

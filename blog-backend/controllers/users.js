@@ -2,7 +2,9 @@ const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const findUser = require('../util/entityFinder')
 const { Op } = require('sequelize');
-const { User, Blog, ReadingList } = require('../models')
+const { User, Blog, ReadingList, Session } = require('../models')
+const tokenExtractor = require('../util/tokenExtractor')
+const sessionExtractor = require('../util/sessionExtractor')
 
 router.get('/', async (req, res) => {
   const users = await User.findAll({
@@ -32,7 +34,7 @@ router.get('/:id', findUser(User), async (req, res) => {
       model: ReadingList,
       attributes: ['id', 'isRead'],
       where: {
-        isRead: req.query !== undefined ? isRead : { [Op.ne]: null },
+        isRead: isRead !== undefined ? isRead : { [Op.ne]: null },
       }
     }, where: {
       id: req.user.ReadingLists.map(list => list.blogId)
@@ -46,16 +48,29 @@ router.get('/:id', findUser(User), async (req, res) => {
     })
 })
 
-router.delete('/:id', findUser(User), async (req, res) => {
+router.delete('/:id', findUser(User), tokenExtractor, sessionExtractor, async (req, res) => {
+  const user = await User.findByPk(req.decodedToken.id)
+
+  if (!user.id) throw Error('Unauthorized')
+
   req.user.destroy()
   res.status(204).end()
 })
 
-router.put('/:username', findUser(User, 'username'), async (req, res) => {
-  if (!req.body.name) throw Error('name is required')
-  req.user.name = req.body.name
+// router.put('/:username', findUser(User, 'username'), async (req, res) => {
+//   if (!req.body.name) throw Error('name is required')
+//   req.user.name = req.body.name
+//   await req.user.save()
+//   res.json({ name: req.user.name })
+// })
+
+router.put('/:id', findUser(User), async (req, res) => {
+
+  if (!req.user) throw Error('User not found')
+  console.log("enabled?", req.user.enabled)
+  req.user.enabled = !req.user.enabled
   await req.user.save()
-  res.json({ name: req.user.name })
+  res.json({ name: req.user.name, enabled: req.user.enabled })
 })
 
 module.exports = router
